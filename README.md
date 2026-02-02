@@ -1,77 +1,90 @@
-# AI Summarizer — Chrome Extension
+# Summa - AI Summarizer
 
-Summarize web pages, YouTube videos, and text using a locally-hosted deep learning model. No API keys. No cloud services. Runs entirely on your GPU.
+Summa is a powerful Chrome extension that leverages Google's Gemini Flash model to generate concise, structured summaries for web pages, YouTube videos, and arbitrary text. It features a modern, dark-themed UI and a robust Flask backend.
 
-## Requirements
+## ✨ Features
 
-- Python 3.10+
-- NVIDIA GPU with CUDA support (RTX 3050 tested)
-- Deno (https://deno.land)
-- Chrome browser
+- **Summarize Web Pages**: Instantly extract and summarize the main content of any active tab.
+- **YouTube Summaries**: Automatically fetches transcripts and generates summaries for YouTube videos (supports auto-generated captions).
+- **Text Summarization**: Paste any text snippet to get a quick analysis.
+- **Structured Output**: Returns consistent, organized summaries including:
+  - 🎯 **Core Takeaway**: A single sentence capturing the essence.
+  - 🔑 **Key Points**: Bulleted list of maximum 3-6 critical points.
+  - 📝 **Details**: Expanded paragraphs for context.
+  - 🚀 **Actionable Insights**: practical steps or learnings.
+  - ⚠️ **Limitations**: Notes on potential bias or missing info.
+- **Caching**: Smart backend caching to speed up repeated requests.
 
-## Setup
+## 🛠️ Tech Stack
 
-### 1. Install Python dependencies
+- **Backend**: Python, Flask, Google Gemini API, `yt-dlp` (YouTube), `BeautifulSoup` (Web Scraping).
+- **Frontend**: Chrome Extension (Manifest V3), HTML5, CSS3, JavaScript.
+
+## 🚀 Setup Guide
+
+### 1. Backend Setup
+
+The backend handles the AI processing and data fetching.
+
+1.  **Clone the repository** (if you haven't already):
+    ```bash
+    git clone <repository-url>
+    cd SUM-RISE
+    ```
+
+2.  **Create and activate a virtual environment**:
+    ```bash
+    # Windows
+    python -m venv venv
+    .\venv\Scripts\activate
+
+    # Mac/Linux
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Configure Environment Variables**:
+    Create a `.env` file in the root directory:
+    ```bash
+    GEMINI_API_KEY=your_gemini_api_key_here
+    ```
+    *Get your API key from [Google AI Studio](https://aistudio.google.com/).*
+
+5.  **Start the Server**:
+    ```bash
+    python server.py
+    ```
+    The server will start at `http://127.0.0.1:5000`.
+
+### 2. Extension Setup
+
+1.  Open Google Chrome and navigate to `chrome://extensions`.
+2.  Enable **Developer mode** in the top right corner.
+3.  Click **Load unpacked**.
+4.  Select the `extension` folder inside this project directory.
+5.  The **AI Summarizer** icon should now appear in your browser toolbar.
+
+## 📖 Usage
+
+1.  Ensure the Flask server is running (`python server.py`).
+2.  **Web Page**: Navigate to an article, click the extension icon, and select "📄 Summarize Current Page".
+3.  **YouTube**: Open a YouTube video, click the extension, and select "▶️ Summarize YouTube Video".
+4.  **Text**: Paste text into the text area and click "✍️ Summarize Pasted Text".
+
+## 📦 Deployment (Optional)
+
+The backend includes a `Procfile` for deployment on platforms like Heroku or Render.
 
 ```bash
-# Create virtual environment
-python -m venv venv
-
-# Activate it
-# Windows:
-venv\Scripts\activate
-# Linux/macOS:
-source venv/bin/activate
-
-# Install PyTorch with CUDA
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-
-# Install other dependencies
-pip install transformers flask flask-cors beautifulsoup4 requests yt-dlp
+# Example for production run
+gunicorn server:app
 ```
 
-### 2. Install Deno (required for YouTube)
+## 📄 License
 
-```powershell
-# Windows PowerShell
-irm https://deno.land/install.ps1 | iex
-```
-
-### 3. Start the server
-
-```bash
-python server.py
-```
-
-The model downloads on first run (~1.6GB). Subsequent starts load from cache.
-
-### 4. Load the Chrome extension
-
-1. Open `chrome://extensions/`
-2. Enable **Developer mode** (top right)
-3. Click **Load unpacked**
-4. Select the `extension/` folder
-
-## Usage
-
-1. Keep the Flask server running (`python server.py`)
-2. Click the AI Summarizer icon in Chrome toolbar
-3. Choose a summarization mode:
-   - **Summarize Current Page**: Works on any webpage
-   - **Summarize YouTube Video**: Works on YouTube videos with captions
-   - **Summarize Pasted Text**: Paste any text to summarize
-
-## How It Works
-
-The extension sends the current page URL (or pasted text) to a local Flask server. The server extracts text (BeautifulSoup for websites, yt-dlp for YouTube), splits it into chunks that fit BART's input window, runs inference on each chunk using the GPU, and returns the combined summary.
-
-- **Model:** facebook/bart-large-cnn (400M parameters)
-- **Precision:** FP16 on GPU (~750MB VRAM)
-- **Latency:** 0.3-1s per chunk on RTX 3050
-
-## Limitations
-
-- YouTube videos must have English captions
-- Maximum video length: 30 minutes
-- JavaScript-rendered pages may not extract text correctly
-- Paywalled pages cannot be accessed
+[MIT](https://choosealicense.com/licenses/mit/)
