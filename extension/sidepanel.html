@@ -576,6 +576,20 @@
         .modal-btn.primary:hover {
             background: var(--accent-hover);
         }
+
+        /* Transcription Badge */
+        .transcription-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(64, 192, 87, 0.1);
+            border: 1px solid rgba(64, 192, 87, 0.3);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #2f9e44;
+        }
     </style>
 </head>
 
@@ -661,7 +675,7 @@
 
             <div class="loading-indicator" id="loadingIndicator">
                 <div class="loading-spinner"></div>
-                <span>Generating summary...</span>
+                <span class="loading-text">Generating summary...</span>
             </div>
         </div>
 
