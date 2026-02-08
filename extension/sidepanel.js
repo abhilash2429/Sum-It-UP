@@ -154,13 +154,48 @@ function showTranscriptionBadge() {
 }
 
 function formatSummaryBody(text) {
-    // Convert markdown-style formatting
-    let html = text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n/g, '<br>');
+    // Convert markdown to HTML
+    let html = text;
 
-    return '<p>' + html + '</p>';
+    // Remove leading heading (since it's already displayed as the title)
+    // This handles #, ##, or ### at the start
+    html = html.replace(/^#{1,3}\s*.+?\n+/, '');
+
+    // Convert remaining section headings to styled divs
+    html = html.replace(/^###\s*(.+)$/gm, '<div class="section-heading">$1</div>');
+    html = html.replace(/^##\s*(.+)$/gm, '<div class="section-heading">$1</div>');
+
+    // Convert bold **text**
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // Convert italics *text*
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+    // Convert bullet lists
+    html = html.replace(/^-\s+(.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>[\s\S]*?<\/li>)+/g, '<ul>$&</ul>');
+
+    // Convert numbered lists
+    html = html.replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>');
+
+    // Convert paragraphs (double newlines)
+    html = html.replace(/\n\n+/g, '</p><p>');
+
+    // Convert single newlines to breaks
+    html = html.replace(/\n/g, '<br>');
+
+    // Wrap in paragraph
+    html = '<p>' + html + '</p>';
+
+    // Clean up
+    html = html.replace(/<p><\/p>/g, '');
+    html = html.replace(/<p>\s*<\/p>/g, '');
+    html = html.replace(/<p><br>/g, '<p>');
+    html = html.replace(/<br><\/p>/g, '</p>');
+    html = html.replace(/<p>\s*<div/g, '<div');
+    html = html.replace(/<\/div>\s*<\/p>/g, '</div>');
+
+    return html;
 }
 
 function addFollowUpToUI(question, answer) {
@@ -398,7 +433,20 @@ function showError(message) {
     elements.emptyState.style.display = 'none';
     elements.summarySection.classList.add('visible');
     elements.summaryHeading.textContent = 'Error';
-    elements.summaryBody.innerHTML = `<p style="color: #c92a2a;">${escapeHtml(message)}</p>`;
+
+    // Format error message with better structure
+    let formattedError = escapeHtml(message);
+
+    // Highlight key terms for readability
+    formattedError = formattedError.replace(/(\d{3})/g, '<strong>$1</strong>');
+    formattedError = formattedError.replace(/(timeout|failed|error|forbidden|not found|connection)/gi, '<strong>$1</strong>');
+
+    elements.summaryBody.innerHTML = `
+        <div class="error-container">
+            <p class="error-message">${formattedError}</p>
+            <p class="error-hint">Try refreshing the page or checking the URL.</p>
+        </div>
+    `;
 }
 
 // ═══════════════════════════════════════════════════════════
