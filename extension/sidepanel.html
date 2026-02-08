@@ -310,6 +310,83 @@
             color: var(--text-primary);
         }
 
+        .summary-body em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .summary-body h1,
+        .summary-body h2,
+        .summary-body h3 {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 16px 0 8px 0;
+            line-height: 1.3;
+        }
+
+        .summary-body h1 {
+            font-size: 1.5em;
+        }
+
+        .summary-body h2 {
+            font-size: 1.3em;
+        }
+
+        .summary-body h3 {
+            font-size: 1.15em;
+        }
+
+        .summary-body ul,
+        .summary-body ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+
+        .summary-body li {
+            margin: 6px 0;
+            line-height: 1.6;
+        }
+
+        .summary-body p {
+            margin: 0 0 12px 0;
+        }
+
+        .summary-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-body .section-heading {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: var(--text-primary);
+            margin: 20px 0 10px 0;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-body .section-heading:first-child {
+            margin-top: 0;
+        }
+
+        .error-container {
+            padding: 16px;
+            background: rgba(201, 42, 42, 0.1);
+            border: 1px solid rgba(201, 42, 42, 0.3);
+            border-radius: 8px;
+        }
+
+        .error-message {
+            color: #c92a2a;
+            margin: 0 0 12px 0;
+            line-height: 1.5;
+        }
+
+        .error-hint {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin: 0;
+        }
+
         /* Follow-up Section */
         .followup-section {
             margin-top: 24px;
@@ -347,6 +424,32 @@
             padding: 1px 4px;
             border-radius: 2px;
             font-weight: 500;
+        }
+
+        .followup-answer strong {
+            font-weight: 600;
+        }
+
+        .followup-answer em {
+            font-style: italic;
+        }
+
+        .followup-answer p {
+            margin: 0 0 8px 0;
+        }
+
+        .followup-answer p:last-child {
+            margin-bottom: 0;
+        }
+
+        .followup-answer ul,
+        .followup-answer ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .followup-answer li {
+            margin: 4px 0;
         }
 
         /* Jump to Latest */
