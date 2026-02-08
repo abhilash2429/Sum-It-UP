@@ -140,6 +140,19 @@ function showSummary(heading, body, save = true) {
     scrollToBottom();
 }
 
+function showTranscriptionBadge() {
+    // Add badge to indicate audio was transcribed
+    const badge = document.createElement('div');
+    badge.className = 'transcription-badge';
+    badge.innerHTML = '🎤 Transcribed from audio';
+
+    // Insert after summary heading
+    const meta = elements.summaryMeta;
+    if (meta) {
+        meta.appendChild(badge);
+    }
+}
+
 function formatSummaryBody(text) {
     // Convert markdown-style formatting
     let html = text
@@ -311,9 +324,13 @@ async function summarizeYouTube() {
     try {
         const title = await getCurrentPageTitle();
         const data = await callAPI('/summarize-youtube', { url });
-
         showLoading(false);
         showSummary(data.heading || title, data.summary);
+
+        // Show transcription badge if Whisper was used
+        if (data.metadata?.transcription_method === 'whisper') {
+            showTranscriptionBadge();
+        }
 
     } catch (error) {
         showLoading(false);
