@@ -71,6 +71,16 @@
                     </div>
                 </div>
 
+                <!-- Delete Conversation Button -->
+                <button class="delete-btn" id="deleteBtn" aria-label="Clear conversation" title="Clear conversation">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
+
                 <!-- Settings Gear Icon -->
                 <button class="settings-btn" id="settingsBtn" aria-label="Open settings">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -92,12 +102,12 @@
                 <div class="setting-item">
                     <label class="setting-label">Color</label>
                     <select class="setting-select" id="colorSelect" data-setting="colorPalette">
-                        <option value="slate">Slate</option>
-                        <option value="cedar">Cedar</option>
-                        <option value="mint">Mint</option>
-                        <option value="ocean" selected>Ocean</option>
-                        <option value="ember">Ember</option>
-                        <option value="iris">Iris</option>
+                        <option value="slate" data-color="#516170">Slate</option>
+                        <option value="cedar" data-color="#c4622d">Cedar</option>
+                        <option value="mint" data-color="#37a987">Mint</option>
+                        <option value="ocean" selected data-color="#1e88e5">Ocean</option>
+                        <option value="ember" data-color="#d84315">Ember</option>
+                        <option value="iris" data-color="#5e35b1">Iris</option>
                     </select>
                 </div>
 
@@ -160,15 +170,18 @@
                 <p class="home-description">
                     URLs, YouTube videos, tabs<br>and custom scripts
                 </p>
-                <div class="home-features">
-                    <div class="feature-pill">Web Pages</div>
-                    <div class="feature-pill">YouTube</div>
-                    <div class="feature-pill">Text</div>
-                </div>
             </div>
 
             <!-- Messages will be appended here -->
         </div>
+
+        <!-- Jump to Latest Button -->
+        <button class="jump-to-latest hidden" id="jumpToLatest" aria-label="Jump to latest">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+            <span>Jump to latest</span>
+        </button>
 
         <!-- ═══════════════════════════════════════════════════════ -->
         <!-- Follow-up Questions Input -->
