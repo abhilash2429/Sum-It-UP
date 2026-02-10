@@ -121,15 +121,28 @@ select {
   padding: var(--space-md) var(--space-lg);
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
+  min-height: 56px;
   z-index: 100;
 }
 
 .app-title {
   font-family: var(--font-mono);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text-primary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: var(--space-md);
+}
+
+.app-title.has-summary {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .header-controls {
@@ -421,12 +434,14 @@ select {
 .content-area {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md);
   background: var(--bg-primary);
 }
 
 .content-area::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .content-area::-webkit-scrollbar-track {
@@ -434,12 +449,8 @@ select {
 }
 
 .content-area::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 3px;
-}
-
-.content-area::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--accent) 50%, transparent);
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 2px;
 }
 
 /* Home Page */
@@ -498,36 +509,55 @@ select {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Message Bubbles
+   Message Bubbles — Chat-Style Layout
    ═══════════════════════════════════════════════════════════ */
 
 .message {
   margin-bottom: var(--space-lg);
   animation: slideIn 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* User messages → right */
+.message.user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+/* Assistant messages → left */
+.message.assistant {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+/* Error messages → left */
+.message.error {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+/* Message Header */
 .message-header {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  margin-bottom: var(--space-xs);
+  margin-bottom: 6px;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
+}
+
+.message.user .message-header {
+  flex-direction: row-reverse;
 }
 
 .message-avatar {
@@ -538,46 +568,84 @@ select {
   align-items: center;
   justify-content: center;
   font-size: 10px;
+  flex-shrink: 0;
 }
 
 .message.user .message-avatar {
   background: color-mix(in srgb, var(--accent) 55%, transparent);
+  color: white;
 }
 
 .message.assistant .message-avatar {
   background: color-mix(in srgb, var(--success) 55%, transparent);
+  color: white;
 }
 
+.message.error .message-avatar {
+  background: color-mix(in srgb, var(--error) 55%, transparent);
+  color: white;
+}
+
+/* Message Content — Borderless Chat Style */
 .message-content {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
   line-height: 1.7;
-  font-size: var(--base-font-size);
+  font-size: calc(var(--base-font-size) * 0.95);
+  color: var(--text-primary);
 }
 
 .message.user .message-content {
-  border-left: 3px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-align: right;
 }
 
 .message.assistant .message-content {
-  border-left: 3px solid color-mix(in srgb, var(--success) 50%, transparent);
+  background: rgba(16, 185, 129, 0.03);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border-left: 2px solid rgba(16, 185, 129, 0.2);
+  color: var(--text-primary);
 }
 
 .message.error .message-content {
-  background: rgba(239, 68, 68, 0.06);
-  border-left: 3px solid color-mix(in srgb, var(--error) 50%, transparent);
   color: var(--error);
+  font-weight: 500;
 }
 
-.message-meta {
+/* Source tag */
+.message-source {
+  display: inline-block;
+  padding: 2px 8px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-top: var(--space-sm);
-  padding-top: var(--space-sm);
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--text-muted);
-  font-style: italic;
+}
+
+.message.assistant .message-source {
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
+}
+
+/* Streaming cursor effect */
+.message-content.streaming::after {
+  content: '▋';
+  color: var(--accent);
+  animation: blink 0.8s infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 /* Markdown Rendering in Messages */
@@ -591,17 +659,9 @@ select {
   color: var(--text-primary);
 }
 
-.message-content h1 {
-  font-size: 1.3em;
-}
-
-.message-content h2 {
-  font-size: 1.15em;
-}
-
-.message-content h3 {
-  font-size: 1.05em;
-}
+.message-content h1 { font-size: 1.3em; }
+.message-content h2 { font-size: 1.15em; }
+.message-content h3 { font-size: 1.05em; }
 
 .message-content p {
   margin-bottom: var(--space-sm);
@@ -693,26 +753,25 @@ select {
 }
 
 .followup-send-btn {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 65%, transparent);
   border-radius: var(--radius-md);
-  color: var(--text-muted);
+  color: white;
   transition: all var(--transition-base);
+  flex-shrink: 0;
 }
 
 .followup-send-btn:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--accent) 65%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-  color: white;
+  background: color-mix(in srgb, var(--accent-hover) 80%, transparent);
+  transform: translateY(-2px);
 }
 
 .followup-send-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
