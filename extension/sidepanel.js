@@ -30,6 +30,7 @@ const elements = {
     settingsBtn: document.getElementById('settingsBtn'),
     settingsPanel: document.getElementById('settingsPanel'),
     appTitle: document.getElementById('appTitle'),
+    deleteBtn: document.getElementById('deleteBtn'),
 
     // Input controls
     dynamicInputArea: document.getElementById('dynamicInputArea'),
@@ -39,6 +40,7 @@ const elements = {
     // Content areas
     contentArea: document.getElementById('contentArea'),
     homePage: document.getElementById('homePage'),
+    jumpToLatest: document.getElementById('jumpToLatest'),
 
     // Follow-up
     followupInput: document.getElementById('followupInput'),
@@ -98,8 +100,20 @@ function initializeSettingsUI() {
 // ═══════════════════════════════════════════════════════════
 
 function setupEventListeners() {
-    // Summarize button - toggle dropdown or summarize
-    elements.summarizeBtn.addEventListener('click', handleSummarizeClick);
+    // Summarize button - direct click summarizes
+    elements.summarizeBtn.addEventListener('click', (e) => {
+        // If clicking the chevron, toggle dropdown
+        if (e.target.closest('.btn-chevron')) {
+            e.stopPropagation();
+            toggleDropdown();
+        } else {
+            // Clicking the button itself - close dropdown if open and summarize
+            if (appState.dropdownOpen) {
+                closeDropdown();
+            }
+            performSummarize();
+        }
+    });
 
     // Source options in dropdown
     document.querySelectorAll('.source-option').forEach(option => {
@@ -108,6 +122,20 @@ function setupEventListeners() {
 
     // Settings panel toggle
     elements.settingsBtn.addEventListener('click', toggleSettings);
+
+    // Delete conversation
+    elements.deleteBtn.addEventListener('click', clearConversation);
+
+    // Jump to latest
+    elements.jumpToLatest.addEventListener('click', () => {
+        elements.contentArea.scrollTo({
+            top: elements.contentArea.scrollHeight,
+            behavior: 'smooth'
+        });
+    });
+
+    // Show/hide jump to latest on scroll
+    elements.contentArea.addEventListener('scroll', handleScroll);
 
     // Color select change
     if (elements.colorSelect) {
@@ -136,20 +164,7 @@ function setupEventListeners() {
     });
 }
 
-// ═══════════════════════════════════════════════════════════
-// Dropdown Handling
-// ═══════════════════════════════════════════════════════════
-
-function handleSummarizeClick(e) {
-    e.stopPropagation();
-
-    if (appState.dropdownOpen) {
-        closeDropdown();
-        performSummarize();
-    } else {
-        toggleDropdown();
-    }
-}
+// Removed - handleSummarizeClick no longer needed
 
 function toggleDropdown() {
     appState.dropdownOpen = !appState.dropdownOpen;
@@ -498,14 +513,54 @@ function hideHomePage() {
     }
 }
 
+function clearConversation() {
+    if (!appState.currentContext && appState.messages.length === 0) {
+        return; // Nothing to clear
+    }
+
+    if (confirm('Clear all messages and start over?')) {
+        // Clear state
+        appState.messages = [];
+        appState.followUpCount = 0;
+        appState.currentContext = null;
+
+        // Clear UI
+        elements.contentArea.innerHTML = '';
+        elements.homePage.classList.remove('hidden');
+        elements.contentArea.appendChild(elements.homePage);
+
+        // Reset header title
+        updateHeaderTitle();
+
+        // Disable follow-ups
+        disableFollowUps();
+        updateFollowUpCounter();
+
+        // Hide jump to latest
+        elements.jumpToLatest.classList.add('hidden');
+    }
+}
+
+function handleScroll() {
+    if (!elements.contentArea || !elements.jumpToLatest) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = elements.contentArea;
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+    const hasMessages = appState.messages.length > 0;
+
+    // Show jump button if there are messages and user is not near bottom
+    if (hasMessages && !isNearBottom) {
+        elements.jumpToLatest.classList.remove('hidden');
+    } else {
+        elements.jumpToLatest.classList.add('hidden');
+    }
+}
+
 function addMessage(role, content, metadata = {}) {
     hideHomePage();
 
     const message = document.createElement('div');
     message.className = `message ${role}`;
-
-    const avatarContent = role === 'user' ? '👤' : role === 'assistant' ? '🤖' : '⚠️';
-    const headerText = role === 'user' ? 'You' : role === 'assistant' ? 'Summary' : 'Error';
 
     let sourceHTML = '';
     if (metadata.source) {
@@ -513,10 +568,6 @@ function addMessage(role, content, metadata = {}) {
     }
 
     message.innerHTML = `
-    <div class="message-header">
-      <div class="message-avatar">${avatarContent}</div>
-      <span>${headerText}</span>
-    </div>
     <div class="message-content" data-role="${role}">
       ${content}
     </div>
@@ -536,10 +587,6 @@ function addLoadingMessage(text = 'Summarizing...') {
     loading.className = 'message assistant';
     loading.id = 'loadingMessage';
     loading.innerHTML = `
-    <div class="message-header">
-      <div class="message-avatar">🤖</div>
-      <span>AI</span>
-    </div>
     <div class="message-content" data-role="assistant">
       <div class="loading-content">
         <div class="loading-spinner"></div>
@@ -616,19 +663,12 @@ async function streamMessage(role, fullText, metadata = {}) {
     const message = document.createElement('div');
     message.className = `message ${role}`;
 
-    const avatarContent = role === 'user' ? '👤' : role === 'assistant' ? '🤖' : '⚠️';
-    const headerText = role === 'user' ? 'You' : role === 'assistant' ? 'Summary' : 'Error';
-
     let sourceHTML = '';
     if (metadata.source) {
         sourceHTML = `<span class="message-source">${metadata.source}</span>`;
     }
 
     message.innerHTML = `
-    <div class="message-header">
-      <div class="message-avatar">${avatarContent}</div>
-      <span>${headerText}</span>
-    </div>
     <div class="message-content streaming" data-role="${role}"></div>
     ${sourceHTML}
   `;
@@ -637,8 +677,8 @@ async function streamMessage(role, fullText, metadata = {}) {
 
     const contentDiv = message.querySelector('.message-content');
 
-    const CHARS_PER_CHUNK = 3;
-    const INTERVAL_MS = 15;
+    const CHARS_PER_CHUNK = 5;  // Increased for smoother flow
+    const INTERVAL_MS = 10;     // Decreased for faster, smoother animation
     let currentIndex = 0;
 
     return new Promise(resolve => {
