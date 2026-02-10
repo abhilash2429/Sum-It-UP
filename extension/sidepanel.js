@@ -29,6 +29,7 @@ const elements = {
     sourceDropdown: document.getElementById('sourceDropdown'),
     settingsBtn: document.getElementById('settingsBtn'),
     settingsPanel: document.getElementById('settingsPanel'),
+    appTitle: document.getElementById('appTitle'),
 
     // Input controls
     dynamicInputArea: document.getElementById('dynamicInputArea'),
@@ -260,6 +261,9 @@ async function summarizeCurrentTab(length) {
         throw new Error('Could not get current tab URL');
     }
 
+    const pageTitle = await fetchPageTitle(url);
+    updateHeaderTitle(pageTitle);
+
     addMessage('user', `Summarize: ${truncateUrl(url)}`);
     addLoadingMessage();
 
@@ -279,8 +283,8 @@ async function summarizeCurrentTab(length) {
         throw new Error(data.error);
     }
 
-    addMessage('assistant', formatSummary(data.summary), { source: 'Current Tab' });
-    setContext(data.summary, url, isYouTube ? 'youtube' : 'webpage', data.original_content);
+    await streamMessage('assistant', formatSummary(data.summary), { source: pageTitle });
+    setContext(data.summary, url, isYouTube ? 'youtube' : 'webpage', data.original_content, pageTitle);
 }
 
 async function summarizeYouTube(length) {
@@ -290,6 +294,8 @@ async function summarizeYouTube(length) {
     if (!url.includes('youtube.com') && !url.includes('youtu.be')) {
         throw new Error('Please navigate to a YouTube video');
     }
+
+    updateHeaderTitle('YouTube Video');
 
     addMessage('user', `Summarize YouTube: ${truncateUrl(url)}`);
     addLoadingMessage('Extracting transcript...');
@@ -307,8 +313,8 @@ async function summarizeYouTube(length) {
         throw new Error(data.error);
     }
 
-    addMessage('assistant', formatSummary(data.summary), { source: 'YouTube' });
-    setContext(data.summary, url, 'youtube', data.original_content);
+    await streamMessage('assistant', formatSummary(data.summary), { source: 'YouTube Video' });
+    setContext(data.summary, url, 'youtube', data.original_content, 'YouTube Video');
 }
 
 async function summarizeCustomURL(length) {
@@ -321,6 +327,9 @@ async function summarizeCustomURL(length) {
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         throw new Error('URL must start with http:// or https://');
     }
+
+    const pageTitle = await fetchPageTitle(url);
+    updateHeaderTitle(pageTitle);
 
     addMessage('user', `Summarize: ${truncateUrl(url)}`);
     addLoadingMessage();
@@ -341,8 +350,8 @@ async function summarizeCustomURL(length) {
         throw new Error(data.error);
     }
 
-    addMessage('assistant', formatSummary(data.summary), { source: 'URL' });
-    setContext(data.summary, url, isYouTube ? 'youtube' : 'webpage', data.original_content);
+    await streamMessage('assistant', formatSummary(data.summary), { source: pageTitle });
+    setContext(data.summary, url, isYouTube ? 'youtube' : 'webpage', data.original_content, pageTitle);
 
     elements.customUrl.value = '';
 }
@@ -353,6 +362,8 @@ async function summarizeCustomText(length) {
     if (!text || text.length < 20) {
         throw new Error('Please enter at least 20 characters');
     }
+
+    updateHeaderTitle('Custom Text Summary');
 
     const preview = text.length > 80 ? text.substring(0, 80) + '...' : text;
     addMessage('user', preview);
@@ -371,14 +382,14 @@ async function summarizeCustomText(length) {
         throw new Error(data.error);
     }
 
-    addMessage('assistant', formatSummary(data.summary), { source: 'Custom Text' });
-    setContext(data.summary, null, 'text', data.original_content);
+    await streamMessage('assistant', formatSummary(data.summary), { source: 'Custom Text' });
+    setContext(data.summary, null, 'text', data.original_content, 'Custom Text Summary');
 
     elements.customText.value = '';
 }
 
-function setContext(summary, url, type, originalContent = '') {
-    appState.currentContext = { summary, url, type, originalContent: originalContent || '' };
+function setContext(summary, url, type, originalContent = '', title = '') {
+    appState.currentContext = { summary, url, type, originalContent: originalContent || '', title };
     appState.followUpCount = 0;
     enableFollowUps();
     updateFollowUpCounter();
@@ -431,7 +442,8 @@ async function handleFollowUp() {
         }
 
         appState.followUpCount++;
-        addMessage('assistant', formatSummary(data.answer), {
+
+        await streamMessage('assistant', formatSummary(data.answer), {
             source: `Follow-up ${appState.followUpCount}/${MAX_FOLLOW_UPS}`
         });
 
@@ -492,12 +504,12 @@ function addMessage(role, content, metadata = {}) {
     const message = document.createElement('div');
     message.className = `message ${role}`;
 
-    const avatarContent = role === 'user' ? '👤' : role === 'assistant' ? '✨' : '⚠️';
+    const avatarContent = role === 'user' ? '👤' : role === 'assistant' ? '🤖' : '⚠️';
     const headerText = role === 'user' ? 'You' : role === 'assistant' ? 'Summary' : 'Error';
 
-    let metaHTML = '';
+    let sourceHTML = '';
     if (metadata.source) {
-        metaHTML = `<div class="message-meta">${metadata.source}</div>`;
+        sourceHTML = `<span class="message-source">${metadata.source}</span>`;
     }
 
     message.innerHTML = `
@@ -505,10 +517,10 @@ function addMessage(role, content, metadata = {}) {
       <div class="message-avatar">${avatarContent}</div>
       <span>${headerText}</span>
     </div>
-    <div class="message-content">
+    <div class="message-content" data-role="${role}">
       ${content}
-      ${metaHTML}
     </div>
+    ${sourceHTML}
   `;
 
     elements.contentArea.appendChild(message);
@@ -525,10 +537,10 @@ function addLoadingMessage(text = 'Summarizing...') {
     loading.id = 'loadingMessage';
     loading.innerHTML = `
     <div class="message-header">
-      <div class="message-avatar">✨</div>
+      <div class="message-avatar">🤖</div>
       <span>AI</span>
     </div>
-    <div class="message-content">
+    <div class="message-content" data-role="assistant">
       <div class="loading-content">
         <div class="loading-spinner"></div>
         <span>${text}</span>
@@ -592,6 +604,119 @@ function formatSummary(text) {
             if (match.startsWith('<')) return match;
             return match;
         });
+}
+
+// ═══════════════════════════════════════════════════════════
+// Streaming Text Generation
+// ═══════════════════════════════════════════════════════════
+
+async function streamMessage(role, fullText, metadata = {}) {
+    hideHomePage();
+
+    const message = document.createElement('div');
+    message.className = `message ${role}`;
+
+    const avatarContent = role === 'user' ? '👤' : role === 'assistant' ? '🤖' : '⚠️';
+    const headerText = role === 'user' ? 'You' : role === 'assistant' ? 'Summary' : 'Error';
+
+    let sourceHTML = '';
+    if (metadata.source) {
+        sourceHTML = `<span class="message-source">${metadata.source}</span>`;
+    }
+
+    message.innerHTML = `
+    <div class="message-header">
+      <div class="message-avatar">${avatarContent}</div>
+      <span>${headerText}</span>
+    </div>
+    <div class="message-content streaming" data-role="${role}"></div>
+    ${sourceHTML}
+  `;
+
+    elements.contentArea.appendChild(message);
+
+    const contentDiv = message.querySelector('.message-content');
+
+    const CHARS_PER_CHUNK = 3;
+    const INTERVAL_MS = 15;
+    let currentIndex = 0;
+
+    return new Promise(resolve => {
+        const streamInterval = setInterval(() => {
+            if (currentIndex >= fullText.length) {
+                clearInterval(streamInterval);
+                contentDiv.classList.remove('streaming');
+                // Replace textContent with innerHTML for markdown
+                contentDiv.innerHTML = fullText;
+                appState.messages.push({ role, content: fullText, metadata });
+                resolve();
+                return;
+            }
+
+            const nextChunk = fullText.slice(currentIndex, currentIndex + CHARS_PER_CHUNK);
+            contentDiv.textContent += nextChunk;
+            currentIndex += CHARS_PER_CHUNK;
+
+            elements.contentArea.scrollTop = elements.contentArea.scrollHeight;
+        }, INTERVAL_MS);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+// Dynamic Header Title Management
+// ═══════════════════════════════════════════════════════════
+
+function updateHeaderTitle(title = null) {
+    if (title) {
+        elements.appTitle.textContent = title;
+        elements.appTitle.classList.add('has-summary');
+        elements.appTitle.title = title;
+    } else {
+        elements.appTitle.textContent = 'Sum-it-up';
+        elements.appTitle.classList.remove('has-summary');
+        elements.appTitle.title = '';
+    }
+}
+
+function extractTitleFromURL(url) {
+    try {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace('www.', '');
+        const pathname = urlObj.pathname;
+
+        // GitHub
+        if (hostname === 'github.com') {
+            const parts = pathname.split('/').filter(Boolean);
+            if (parts.length >= 2) return `GitHub - ${parts[0]}/${parts[1]}`;
+            if (parts.length === 1) return `GitHub - ${parts[0]}`;
+            return 'GitHub Page';
+        }
+
+        // Wikipedia
+        if (hostname.includes('wikipedia.org')) {
+            const article = pathname.split('/wiki/')[1];
+            if (article) {
+                const decoded = decodeURIComponent(article).replace(/_/g, ' ');
+                return `${decoded} - Wikipedia`;
+            }
+        }
+
+        // YouTube
+        if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
+            return 'YouTube Video';
+        }
+
+        // Generic: capitalize domain name
+        const domain = hostname.split('.').slice(-2, -1)[0];
+        return domain.charAt(0).toUpperCase() + domain.slice(1);
+
+    } catch (e) {
+        return 'Web Page';
+    }
+}
+
+async function fetchPageTitle(url) {
+    return extractTitleFromURL(url);
 }
 
 // ═══════════════════════════════════════════════════════════
