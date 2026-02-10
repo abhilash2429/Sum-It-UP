@@ -1,229 +1,101 @@
-# SUM-RISE
+# SUM-IT-UP — Intelligent Local Summarization
 
-## Overview
+**Turn noise into knowledge.**  
+A privacy-first Chrome extension that summarizes web pages, YouTube videos, and text using local AI models.
 
-SUM-RISE is a Chrome extension paired with a Flask backend that summarizes web content using Google's Gemini API. I built this to handle web pages, YouTube videos, and arbitrary text. It supports conversational follow-up questions and provides clean, factual summaries without promotional fluff.
+![SUM-IT-UP Banner](landing-page/screenshots/hero.png)
 
-The primary use case is consuming content faster. If you read a lot of documentation, watch tutorial videos, or need to extract key points from articles, this tool does that work for you.
+## Why SUM-IT-UP?
 
-## Features
+Most AI summarizers send your data to the cloud. **SUM-IT-UP runs locally on your machine.**
 
-- Summarizes web pages, YouTube videos (via URL), and custom text
-- Four summary length presets (S, M, L, XL) that adjust output detail
-- YouTube processing with two paths: pulls automatic captions first, falls back to Whisper audio transcription if captions are unavailable
-- Follow-up questions on summaries (capped at 3 per session)
-- Chrome side panel UI with persistent state across browser restarts
-- Markdown-formatted summaries with automatic heading extraction
-- JSON export for summaries
-- In-memory caching to reduce redundant API calls
-- Included utility scripts for committing files to GitHub one at a time
+- 🔒 **100% Private**: Your browsing history never leaves your device.
+- ⚡ **Local Intelligence**: Runs Flask server locally for processing.
+- 📺 **YouTube Smarts**: Detects captions or uses Whisper AI to transcribe audio if captions are missing.
+- 💬 **Chat with Content**: Ask follow-up questions to dig deeper into any summary.
+- 🎨 **Beautiful UI**: 5 color themes, Light/Dark mode, and customizable font sizes.
 
-## Repository Structure
+---
 
-```
-.
-├── extension/              Chrome extension (Manifest V3)
-│   ├── manifest.json       Extension config
-│   ├── sidepanel.html      UI markup
-│   ├── sidepanel.js        Frontend logic
-│   ├── background.js       Service worker to open side panel
-│   └── icons/              Extension icons
-├── server.py               Flask API server
-├── requirements.txt        Python dependencies
-├── .env                    API key storage (not tracked)
-├── github_committer.py     Single-file GitHub commit utility
-├── batch_commit.py         Script to commit all tracked files individually
-```
+## 🚀 Quick Start Guide
 
-## Installation
+**Important: Because this extension runs locally, you MUST have the python server running for it to work.**
 
 ### Prerequisites
+1. **Python 3.10+** installed ([Download](https://www.python.org/downloads/))
+2. **Google Gemini API Key** (Free tier is fine) — [Get Key](https://aistudio.google.com/app/apikey)
+3. **FFmpeg** (For YouTube audio processing) — [Install Guide](https://www.ffmpeg.org/download.html)
 
-- Python 3.8 or higher
-- Google Chrome
-- FFmpeg (for YouTube audio extraction)
-- CUDA-compatible GPU (optional, speeds up Whisper transcription)
+### Step 1: Clone & Setup Backend
 
-### Backend
+Open your terminal/command prompt:
 
-1. Install dependencies:
-```powershell
+```bash
+# 1. Clone the repository
+git clone https://github.com/abhilash2429/Summa.git
+cd Summa
+
+# 2. Install dependencies
 pip install -r requirements.txt
+
+# 3. Set up your API Key
+# Create a file named .env (dot-env) in this folder
+# Add this line to it:
+GEMINI_API_KEY=your_actual_api_key_here
 ```
 
-2. Create a `.env` file in the project root:
-```
-GEMINI_API_KEY=your_api_key_here
-```
+### Step 2: Start the Local Server
 
-3. Start the server:
-```powershell
-py server.py
-```
+**You must keep this terminal window open while using the extension.**
 
-The server runs on `http://127.0.0.1:5000`.
-
-### Extension
-
-1. Open `chrome://extensions/` in Chrome
-2. Enable "Developer mode"
-3. Click "Load unpacked"
-4. Select the `extension/` directory
-5. Pin the extension to your toolbar
-
-## Configuration
-
-### Environment Variables
-
-- `GEMINI_API_KEY`: Required. Must have access to `gemini-2.5-flash-lite`.
-
-### Backend Settings
-
-Defined in `server.py`:
-
-- Model: `gemini-2.5-flash-lite` (line 27)
-- Whisper model: `base`, auto-detects CUDA or CPU (line 33)
-- Max video duration: 30 minutes (line 412)
-- Input truncation: 30,000 characters (line 226)
-- Cache limits: 100 summaries, 50 transcriptions (lines 257, 379)
-
-### Extension Settings
-
-Defined in `extension/sidepanel.js`:
-
-- API endpoint: `http://127.0.0.1:5000` (line 5)
-- Follow-up question limit: 3 (line 6)
-- Font size range: 12px to 24px (lines 460, 468)
-- Default summary length: Medium (line 15)
-
-## Usage
-
-### Running Locally
-
-1. Start the Flask server (must be running first):
-```powershell
-py server.py
+```bash
+python server.py
+# You should see: "Running on http://127.0.0.1:5000"
 ```
 
-2. Open the extension side panel in Chrome
+### Step 3: Load the Extension in Chrome
 
-3. Choose a source:
-   - **Current Page**: Summarize the active tab
-   - **Enter URL**: Provide a custom URL
-   - **YouTube Video**: Summarize a YouTube video
-   - **Custom Text**: Paste text directly
+1. Open Chrome and go to `chrome://extensions/`
+2. Toggle **Developer mode** (top right corner).
+3. Click **Load unpacked**.
+4. Select the `extension` folder inside the project directory.
+5. Pin the **SUM-IT-UP** icon to your toolbar!
 
-4. Adjust length (S/M/L/XL) and font size as needed
+---
 
-5. Click the action button
+## 💡 How to Use
 
-6. Ask up to 3 follow-up questions about the summary
+1. **Ensure Server is Running**: Check your terminal. If `python server.py` isn't running, the extension controls will be disabled or show an error.
+2. **Web Pages**: Navigate to any article, click the **SUM-IT-UP** icon, and hit "Summarize".
+3. **YouTube**: Open a video, click the extension. It will detect captions automatically.
+4. **Custom Text**: Paste any text into the "Custom Text" tab to summarize it.
+5. **Follow-up**: After a summary, use the chat box at the bottom to ask questions.
 
-### API Endpoints
+---
 
-- `POST /summarize` - Text summarization
-  - Body: `{text: string, length: "S"|"M"|"L"|"XL"}`
-  
-- `POST /summarize-url` - Web page summarization
-  - Body: `{url: string, length: "S"|"M"|"L"|"XL"}`
-  
-- `POST /summarize-youtube` - YouTube video summarization
-  - Body: `{url: string, length: "S"|"M"|"L"|"XL"}`
-  
-- `POST /follow-up` - Follow-up question
-  - Body: `{question: string, context: string, history: array}`
-  
-- `GET /health` - Health check
+## ⚙️ Customization
 
-### Example
+Click the **Settings (gear icon)** in the extension to:
+- Change **Summary Length** (Short, Medium, Long, Detailed).
+- Switch **Color Themes** (Blue, Purple, Orange, Green, Slate).
+- Adjust **Font Size**.
+- Toggle **Light/Dark Mode**.
 
-```javascript
-const response = await fetch('http://127.0.0.1:5000/summarize-youtube', {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({
-    url: 'https://www.youtube.com/watch?v=example',
-    length: 'M'
-  })
-});
+---
 
-const data = await response.json();
-console.log(data.heading, data.summary);
-```
+## ❓ Troubleshooting
 
-## Development
+**"Server not connecting" / Red error dot**  
+👉 **Crucial Step:** Make sure the black terminal window with `python server.py` is still running. The extension communicates with this local server to process data.
 
-### Running in Dev Mode
+**"Model not found" error**  
+👉 Check your `.env` file. Ensure `GEMINI_API_KEY` is correct and has no extra spaces.
 
-The Flask server runs in debug mode by default:
+**YouTube summary failed**  
+👉 Ensure FFmpeg is installed and added to your system PATH. This is required for downloading audio from videos without captions.
 
-```powershell
-py server.py
-```
+---
 
-This enables auto-reload and detailed error output (line 634).
+## 📜 License
 
-### Code Organization
-
-**Backend (`server.py`)**:
-- Lines 42-200: Prompt engineering for professional, ad-free summaries
-- Lines 218-262: Gemini API calls with caching
-- Lines 305-501: YouTube transcript extraction with Whisper fallback
-- Lines 505-622: Flask endpoints
-
-**Frontend (`extension/sidepanel.js`)**:
-- Lines 13-22: State management
-- Lines 68-100: Chrome storage persistence
-- Lines 245-395: API communication
-- Lines 408-539: Event handling
-
-### Testing
-
-No automated tests are present. The following test scripts exist locally but are excluded from version control per `.gitignore`:
-- `test_audio_download.py`
-- `test_implementation.py`
-- `test_model.py`
-- `test_whisper.py`
-
-## Deployment
-
-### Production Setup
-
-`.gitignore` excludes:
-- Virtual environments (`venv/`, `env/`)
-- Environment variables (`.env`)
-- Internal design docs (`V1.md`, `V2.md`, `v3.md`, `ytaddon.md`)
-
-### Artifacts
-
-- Backend: `requirements.txt` includes `gunicorn` for production WSGI serving (line 8)
-- Extension: `extension/` directory is ready for Chrome Web Store submission
-- Icons provided in three sizes (16px, 48px, 128px)
-
-### Deployment Notes
-
-- Backend needs a persistent HTTP endpoint accessible to the extension
-- Extension manifest currently points to `http://127.0.0.1:5000/*` (line 23)
-- For production, update `API_BASE` in `sidepanel.js` (line 5) and `host_permissions` in `manifest.json` (line 23)
-
-## Limitations and Assumptions
-
-### Functional Constraints
-
-- YouTube videos over 30 minutes are rejected (line 412)
-- Text over 30,000 characters is truncated (line 226)
-- Follow-up questions limited to 3 per session (line 6, `sidepanel.js`)
-- Caching is in-memory only, clears on server restart (lines 204-205)
-- No persistent storage for summaries or history
-- FFmpeg must be installed for audio transcription, but this is not validated at startup
-
-### Environmental Requirements
-
-- Flask server runs on localhost port 5000
-- Extension expects local backend, not a remote service
-- Gemini API key must have quota for `gemini-2.5-flash-lite`
-- Whisper GPU acceleration requires CUDA setup
-- YouTube caption extraction fails if videos have no English captions or captions are disabled
-- Web scraping assumes standard HTML (JavaScript-rendered or paywalled pages may fail, noted at line 300)
-
-
+MIT License. Built with ❤️ by [Abhilash](https://github.com/abhilash2429).
