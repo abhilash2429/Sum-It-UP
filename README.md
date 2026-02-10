@@ -33,7 +33,6 @@ The primary use case is consuming content faster. If you read a lot of documenta
 ├── .env                    API key storage (not tracked)
 ├── github_committer.py     Single-file GitHub commit utility
 ├── batch_commit.py         Script to commit all tracked files individually
-└── .gitignore             Excludes venv, .env, test files, internal docs
 ```
 
 ## Installation
