@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Sum-it-up",
+  "name": "SUM-IT-UP",
   "version": "3.0",
   "description": "AI-powered summarization with multi-source input and customizable interface",
   "permissions": [
