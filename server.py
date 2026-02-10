@@ -710,6 +710,7 @@ def summarize_text():
         
         return jsonify({
             **response,
+            'original_content': text,
             'metadata': {
                 'input_length': len(text),
                 'word_count': len(text.split()),
@@ -760,6 +761,7 @@ def summarize_url():
         
         return jsonify({
             **response,
+            'original_content': text,
             'citation': citation,
             'metadata': {
                 'source': url,
@@ -807,6 +809,7 @@ def summarize_youtube():
         
         return jsonify({
             **response,
+            'original_content': transcript,
             'citation': citation,
             'metadata': {
                 'source': 'YouTube',
@@ -823,11 +826,13 @@ def summarize_youtube():
 @app.route('/follow-up', methods=['POST'])
 def follow_up_question():
     """
-    Follow-up questions use the SYSTEM_PROMPT directly without tagged structure
+    Follow-up questions use both the summary and original source content
+    for deeper, more accurate answers.
     """
     data = request.get_json()
     question = data.get('question', '')
     context = data.get('context', '')
+    original_content = data.get('original_content', '')
     history = data.get('history', [])
     
     if not question:
@@ -845,18 +850,28 @@ def follow_up_question():
                 role_label = "User" if msg["role"] == "user" else "Assistant"
                 history_text += f"{role_label}: {msg['content']}\n\n"
         
+        # Build the source content section (truncate to avoid token limits)
+        source_section = ""
+        if original_content:
+            # Cap at ~12000 chars to stay within token limits
+            truncated_content = original_content[:12000]
+            was_truncated = len(original_content) > 12000
+            source_section = f"""\n\nOriginal Source Content{' (truncated)' if was_truncated else ''}:
+{truncated_content}"""
+        
         prompt = f"""You are a helpful assistant answering follow-up questions about previously summarized content.
 
 Core Rules:
-- Answer questions based on the original summary and content
+- Use the summary for high-level context and the original source content for detailed answers
+- If the answer exists in the original source content, provide it even if the summary omitted it
 - Be concise and direct
 - Never mention sponsors, ads, or promotional content
 - Never use quotation marks for emphasis (apostrophes in contractions are OK)
-- If asked about something not in the summary, say so clearly
+- If the answer is not in either the summary or the original content, say so clearly
 - Stay focused on the substantive content
 
-Original Summary:
-{context}
+Summary:
+{context}{source_section}
 
 Recent Conversation:
 {history_text if history_text else "(No prior questions)"}
@@ -864,7 +879,7 @@ Recent Conversation:
 User's Question:
 {question}
 
-Provide a clear, concise answer based on the summary:"""
+Provide a clear, concise answer:"""
         
         response = model.generate_content(
             prompt,
