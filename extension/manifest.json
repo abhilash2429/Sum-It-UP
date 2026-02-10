@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Professional Summarizer",
-  "version": "2.0",
-  "description": "AI-powered summarization with conversational follow-ups",
+  "name": "Sum-it-up",
+  "version": "3.0",
+  "description": "AI-powered summarization with multi-source input and customizable interface",
   "permissions": [
     "activeTab",
     "sidePanel",
