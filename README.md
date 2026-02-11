@@ -9,15 +9,21 @@ A privacy-first Chrome extension that summarizes web pages, YouTube videos, and 
 
 Most AI summarizers send your data to the cloud. **SUM-IT-UP runs locally on your machine.**
 
-- **100% Private**: Your browsing history never leaves your device.
-- **Local Intelligence**: Runs Flask server locally for processing.
-- **YouTube Smarts**: Detects captions or uses Whisper AI to transcribe audio if captions are missing.
-- **Chat with Content**: Ask follow-up questions to dig deeper into any summary.
-- **Beautiful UI**: 5 color themes, Light/Dark mode, and customizable font sizes.
+- 🔒 **100% Private**: Your browsing history never leaves your device.
+- ⚡ **Local Intelligence**: Runs Flask server locally for processing.
+- 📺 **YouTube Smarts**: Detects captions or uses Whisper AI to transcribe audio if captions are missing.
+- 💬 **Chat with Content**: Ask follow-up questions to dig deeper into any summary.
+- 🎨 **Beautiful UI**: 5 color themes, Light/Dark mode, and customizable font sizes.
 
 ---
 
-## Quick Start Guide
+## Screenshots
+
+![SUM-IT-UP Landing Page](docs/screenshots/Summary.png)
+
+![SUM-IT-UP Landing Page](docs/screenshots/Followup.png)
+
+## 🚀 Quick Start Guide
 
 **Important: Because this extension runs locally, you MUST have the python server running for it to work.**
 
@@ -63,7 +69,7 @@ python server.py
 
 ---
 
-##  How to Use
+## 💡 How to Use
 
 1. **Ensure Server is Running**: Check your terminal. If `python server.py` isn't running, the extension controls will be disabled or show an error.
 2. **Web Pages**: Navigate to any article, click the **SUM-IT-UP** icon, and hit "Summarize".
@@ -73,7 +79,7 @@ python server.py
 
 ---
 
-## Customization
+## ⚙️ Customization
 
 Click the **Settings (gear icon)** in the extension to:
 - Change **Summary Length** (Short, Medium, Long, Detailed).
@@ -83,15 +89,19 @@ Click the **Settings (gear icon)** in the extension to:
 
 ---
 
-## Troubleshooting
+## ❓ Troubleshooting
 
 **"Server not connecting" / Red error dot**  
- **Crucial Step:** Make sure the black terminal window with `python server.py` is still running. The extension communicates with this local server to process data.
+👉 **Crucial Step:** Make sure the black terminal window with `python server.py` is still running. The extension communicates with this local server to process data.
 
 **"Model not found" error**  
- Check your `.env` file. Ensure `GEMINI_API_KEY` is correct and has no extra spaces.
+👉 Check your `.env` file. Ensure `GEMINI_API_KEY` is correct and has no extra spaces.
 
 **YouTube summary failed**  
-Ensure FFmpeg is installed and added to your system PATH. This is required for downloading audio from videos without captions.
+👉 Ensure FFmpeg is installed and added to your system PATH. This is required for downloading audio from videos without captions.
 
 ---
+
+## 📜 License
+
+MIT License. Built with ❤️ by [Abhilash](https://github.com/abhilash2429).
