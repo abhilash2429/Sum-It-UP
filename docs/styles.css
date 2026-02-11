@@ -1,5 +1,5 @@
 :root {
-    /* Light Theme */
+
     --bg: #ffffff;
     --text: #0a0a0a;
     --text-muted: #525252;
@@ -10,20 +10,20 @@
     --primary-fg: #ffffff;
     --glow-opacity: 0.15;
 
-    /* Spacing */
+
     --space-xs: 0.5rem;
     --space-sm: 1rem;
     --space-md: 2rem;
     --space-lg: 4rem;
     --space-xl: 8rem;
 
-    /* Container */
+
     --container-width: 1200px;
     --container-padding: 1.5rem;
 }
 
 [data-theme="dark"] {
-    /* Dark Theme */
+
     --bg: #000000;
     --text: #e5e5e5;
     --text-muted: #a3a3a3;
@@ -35,7 +35,7 @@
     --glow-opacity: 0.25;
 }
 
-/* Background Utilities */
+
 .app-wrapper {
     min-height: 100vh;
     width: 100%;
@@ -58,7 +58,7 @@
     z-index: 1;
 }
 
-/* Reset & Base */
+
 *,
 *::before,
 *::after {
@@ -75,7 +75,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Typography */
+
 h1,
 h2,
 h3,
@@ -107,9 +107,9 @@ p {
     font-size: 1.125rem;
 }
 
-/* ... existing styles ... */
 
-/* Layout Utilities */
+
+
 .container {
     max-width: var(--container-width);
     margin: 0 auto;
@@ -141,7 +141,7 @@ p {
     text-align: center;
 }
 
-/* Components */
+
 .btn {
     display: inline-flex;
     align-items: center;
@@ -177,7 +177,7 @@ p {
     border-color: var(--text);
 }
 
-/* Navigation */
+
 nav {
     position: fixed;
     top: 0;
@@ -203,7 +203,7 @@ nav {
     letter-spacing: -0.025em;
 }
 
-/* Sections */
+
 section {
     padding: var(--space-xl) 0;
     border-bottom: 1px solid var(--border);
@@ -213,7 +213,7 @@ section:last-of-type {
     border-bottom: none;
 }
 
-/* Hero */
+
 .hero {
     min-height: 80vh;
     display: flex;
@@ -221,7 +221,7 @@ section:last-of-type {
     justify-content: center;
     text-align: center;
     padding-top: 100px;
-    /* Offset for fixed nav */
+
 }
 
 .hero-content {
@@ -249,7 +249,7 @@ section:last-of-type {
     margin-bottom: var(--space-md);
 }
 
-/* Detailed Lists */
+
 .detail-list {
     list-style: none;
     margin-top: var(--space-sm);
@@ -270,10 +270,10 @@ section:last-of-type {
     color: var(--primary);
 }
 
-/* Features Grid Refinement */
+
 .features-grid {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    /* Slightly tighter */
+
     margin-top: var(--space-lg);
 }
 
@@ -302,7 +302,7 @@ section:last-of-type {
     font-size: 1.5rem;
 }
 
-/* Steps */
+
 .step-item {
     display: flex;
     gap: var(--space-md);
@@ -323,7 +323,7 @@ section:last-of-type {
     margin-bottom: var(--space-xs);
 }
 
-/* Footer */
+
 footer {
     padding: var(--space-lg) 0;
     background: var(--surface);
@@ -348,7 +348,7 @@ footer {
     color: var(--text);
 }
 
-/* Theme Toggle */
+
 .theme-toggle {
     background: none;
     border: none;
@@ -364,7 +364,7 @@ footer {
     color: var(--text-muted);
 }
 
-/* Minimal Icons (SVG replacements) */
+
 .icon {
     width: 24px;
     height: 24px;
