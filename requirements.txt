@@ -8,3 +8,5 @@ python-dotenv
 gunicorn
 openai-whisper
 torch
+openai
+anthropic
