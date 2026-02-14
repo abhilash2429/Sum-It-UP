@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SUM-IT-UP — Intelligent Local Summarization</title>
     <meta name="description"
-        content="AI-powered summarization extension for Chrome. Summarize web pages, YouTube videos, and text privately on your device.">
+        content="AI-powered summarization extension for Chrome. Summarize web pages, YouTube videos, and text privately using Gemini, OpenAI, Claude, or Grok.">
 
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,10 +38,10 @@
                 <div class="container hero-content">
                     <span class="badge" style="border-color: var(--primary); color: var(--primary);">v3.0 Stable
                         Release</span>
-                    <h1>Local Intelligence.<br>Absolute Privacy.</h1>
-                    <p>A powerful Chrome extension that leverages local AI to summarize web pages, YouTube videos, and
-                        raw text.
-                        <br>No data leaves your machine. No cloud subscriptions. Just pure, private intelligence.
+                    <h1>Your Web.<br>Your AI Model.</h1>
+                    <p>Summarize web pages, YouTube videos, and text using <strong>Gemini, OpenAI, Claude, or
+                            Grok</strong>.
+                        <br>Runs locally on your machine. Absolute privacy. No data retention.
                     </p>
                     <div class="cta-group animated-fade-up">
                         <a href="https://github.com/abhilash2429/Summa" class="btn btn-primary"
@@ -61,6 +61,25 @@
             <section id="features" class="features">
                 <div class="container">
                     <div class="grid features-grid">
+
+                        <div class="feature-card">
+                            <div class="feature-icon" style="color: var(--primary); border-color: var(--border);">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z">
+                                    </path>
+                                    <path d="M12 6v6l4 2"></path>
+                                </svg>
+                            </div>
+                            <h3>Multi-Model Support</h3>
+                            <p>Choose the brain behind your summaries.</p>
+                            <ul class="detail-list">
+                                <li>Google Gemini (Flash Lite)</li>
+                                <li>OpenAI (GPT-4o)</li>
+                                <li>Anthropic (Claude 3)</li>
+                                <li>xAI (Grok Beta)</li>
+                            </ul>
+                        </div>
 
                         <div class="feature-card">
                             <div class="feature-icon" style="color: var(--primary); border-color: var(--border);">
@@ -145,13 +164,24 @@
                                 <h3>Clone & Install</h3>
                                 <p>Clone the repository and install dependencies.
                                     <code>pip install -r requirements.txt</code>
-                                    handles all Python constraints.
+                                    matches all Python constraints.
                                 </p>
                             </div>
                         </div>
 
                         <div class="step-item">
                             <div class="step-number">02</div>
+                            <div class="step-content">
+                                <h3>Configure Keys</h3>
+                                <p>Create a <code>.env</code> file. Add your API keys for Gemini, OpenAI, Claude, or
+                                    Grok.
+                                    See <code>.env.example</code>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="step-item">
+                            <div class="step-number">03</div>
                             <div class="step-content">
                                 <h3>Initialize Server</h3>
                                 <p>Run <code>python server.py</code>. This launches the local inference engine on
@@ -160,7 +190,7 @@
                         </div>
 
                         <div class="step-item">
-                            <div class="step-number">03</div>
+                            <div class="step-number">04</div>
                             <div class="step-content">
                                 <h3>Load Extension</h3>
                                 <p>Enable Developer Mode in Chrome and load the unpacked <code>extension/</code>
